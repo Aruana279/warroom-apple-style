@@ -5,27 +5,34 @@ import { VoiceControls } from "@/components/warroom/VoiceControls";
 import { WarTable } from "@/components/warroom/WarTable";
 import { ChatPanel } from "@/components/warroom/ChatPanel";
 import { LeftSidebar } from "@/components/warroom/LeftSidebar";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { SessionSetupDialog, type SessionConfig } from "@/components/warroom/SessionSetupDialog";
 
-const DEMO_AGENTS: Agent[] = [
-  { id: "chair-1", name: "Director", role: "chairperson", avatar: "", speakingState: "idle", isHandRaised: false },
-  { id: "analyst-1", name: "Cipher", role: "analyst", avatar: "", speakingState: "idle", isHandRaised: false },
-  { id: "advocate-1", name: "Shield", role: "advocate", avatar: "", speakingState: "idle", isHandRaised: false },
-  { id: "critic-1", name: "Probe", role: "critic", avatar: "", speakingState: "idle", isHandRaised: false },
-  { id: "sec-1", name: "Scribe", role: "secretary", avatar: "", speakingState: "idle", isHandRaised: false },
-];
+// Default agent avatar URLs — swap these from backend later
+const DEFAULT_AVATARS: Record<string, string> = {
+  chairperson: "",
+  analyst: "",
+  advocate: "",
+  critic: "",
+  secretary: "",
+};
 
-const DEMO_TRANSCRIPT: TranscriptEntry[] = [
-  { id: "1", agentId: "chair-1", agentName: "Director", role: "chairperson", text: "Opening this session. The matter before us: evaluate the proposed acquisition of NovaTech for strategic AI capabilities.", timestamp: Date.now() - 120000 },
-  { id: "2", agentId: "analyst-1", agentName: "Cipher", role: "analyst", text: "Initial analysis shows NovaTech holds 3 key patents in multimodal reasoning. Market valuation appears 15% above comparable deals.", timestamp: Date.now() - 90000 },
-  { id: "3", agentId: "critic-1", agentName: "Probe", role: "critic", text: "The integration risk is substantial. Their tech stack diverges significantly from ours. I'd flag a 6-month minimum integration timeline.", timestamp: Date.now() - 60000 },
-  { id: "4", agentId: "advocate-1", agentName: "Shield", role: "advocate", text: "The patent portfolio alone justifies the premium. Without these capabilities, we lose 18 months of R&D runway.", timestamp: Date.now() - 30000 },
-];
+// Default background image URL — swap from backend later
+export const DEFAULT_BG_IMAGE = "";
+
+const ROLE_MAP: Record<string, { name: string; role: Agent["role"] }> = {
+  pa1: { name: "Cipher", role: "analyst" },
+  pa2: { name: "Probe", role: "critic" },
+  pa3: { name: "Shield", role: "advocate" },
+  pa4: { name: "Scribe", role: "secretary" },
+  pa5: { name: "Director", role: "chairperson" },
+};
 
 export default function WarRoom() {
   const [state, setState] = useState<WarRoomState>({
     sessionStatus: "idle",
-    agents: DEMO_AGENTS,
-    transcript: DEMO_TRANSCRIPT,
+    agents: [],
+    transcript: [],
     currentVote: null,
     documents: [],
     isMicActive: false,
@@ -35,6 +42,9 @@ export default function WarRoom() {
   const [sessionSeconds, setSessionSeconds] = useState(0);
   const [intervalId, setIntervalId] = useState<ReturnType<typeof setInterval> | null>(null);
   const [isHandRaised, setIsHandRaised] = useState(false);
+  const [showSetup, setShowSetup] = useState(false);
+  const [sessionAgenda, setSessionAgenda] = useState("");
+  const [bgImage, setBgImage] = useState(DEFAULT_BG_IMAGE);
 
   const formatTime = (s: number) => {
     const m = Math.floor(s / 60);
@@ -42,54 +52,100 @@ export default function WarRoom() {
     return `${m.toString().padStart(2, "0")}:${sec.toString().padStart(2, "0")}`;
   };
 
-  const handleStartSession = useCallback(() => {
+  const handleSessionConfig = useCallback((config: SessionConfig) => {
+    setShowSetup(false);
+    setSessionAgenda(config.agenda);
+
+    // Build agents from selection
+    const agents: Agent[] = config.selectedAgentIds.map((id) => {
+      const info = ROLE_MAP[id] || { name: "Agent", role: "analyst" as const };
+      return {
+        id: `${info.role}-1`,
+        name: info.name,
+        role: info.role,
+        avatar: DEFAULT_AVATARS[info.role] || "",
+        speakingState: "idle" as const,
+        isHandRaised: false,
+      };
+    });
+
+    const openingEntry: TranscriptEntry = {
+      id: "1",
+      agentId: agents[0]?.id || "system",
+      agentName: agents[0]?.name || "System",
+      role: agents[0]?.role || "chairperson",
+      text: `Opening this session. Agenda: ${config.agenda}`,
+      timestamp: Date.now(),
+    };
+
     setState((prev) => ({
       ...prev,
       sessionStatus: "active",
-      agents: prev.agents.map((a, i) =>
-        i === 0 ? { ...a, speakingState: "speaking" as const } : a
-      ),
+      agents,
+      transcript: [openingEntry],
+      currentVote: null,
     }));
+
+    setSessionSeconds(0);
     const id = setInterval(() => setSessionSeconds((s) => s + 1), 1000);
     setIntervalId(id);
 
+    // Simulate conversation
     setTimeout(() => {
       setState((prev) => ({
         ...prev,
-        agents: prev.agents.map((a) =>
-          a.id === "chair-1" ? { ...a, speakingState: "idle" } :
-          a.id === "analyst-1" ? { ...a, speakingState: "speaking" } : a
+        agents: prev.agents.map((a, i) =>
+          i === 1 ? { ...a, speakingState: "speaking" } : { ...a, speakingState: "idle" }
         ),
-      }));
-    }, 4000);
-
-    setTimeout(() => {
-      setState((prev) => ({
-        ...prev,
-        currentVote: {
-          id: "vote-1",
-          motion: "Proceed with NovaTech acquisition at the proposed valuation of $2.4B",
-          votes: { "chair-1": "yes", "analyst-1": "yes" },
-          status: "open",
-        },
-        agents: prev.agents.map((a) => ({ ...a, speakingState: "idle" })),
         transcript: [
           ...prev.transcript,
           {
             id: String(prev.transcript.length + 1),
-            agentId: "chair-1",
-            agentName: "Director",
-            role: "chairperson" as const,
-            text: "I'm calling for a vote on the acquisition. All board members, please cast your votes.",
+            agentId: prev.agents[1]?.id || "agent",
+            agentName: prev.agents[1]?.name || "Agent",
+            role: prev.agents[1]?.role || "analyst",
+            text: "I've reviewed the context. Let me share my initial analysis on this matter.",
             timestamp: Date.now(),
           },
         ],
       }));
-    }, 8000);
+    }, 5000);
+
+    setTimeout(() => {
+      setState((prev) => ({
+        ...prev,
+        agents: prev.agents.map((a) => ({ ...a, speakingState: "idle" })),
+        currentVote: {
+          id: "vote-1",
+          motion: `Proceed with the proposed action regarding: ${config.agenda}`,
+          votes: {},
+          status: "open",
+        },
+        transcript: [
+          ...prev.transcript,
+          {
+            id: String(prev.transcript.length + 1),
+            agentId: prev.agents[0]?.id || "chair",
+            agentName: prev.agents[0]?.name || "Chair",
+            role: prev.agents[0]?.role || "chairperson",
+            text: "I'm calling for a preliminary vote. All members, please cast your votes.",
+            timestamp: Date.now(),
+          },
+        ],
+      }));
+    }, 10000);
+  }, []);
+
+  const handleStartSession = useCallback(() => {
+    setShowSetup(true);
   }, []);
 
   const handleEndSession = useCallback(() => {
-    setState((prev) => ({ ...prev, sessionStatus: "ended", agents: prev.agents.map((a) => ({ ...a, speakingState: "idle" })) }));
+    setState((prev) => ({
+      ...prev,
+      sessionStatus: "ended",
+      agents: prev.agents.map((a) => ({ ...a, speakingState: "idle" })),
+    }));
     if (intervalId) clearInterval(intervalId);
   }, [intervalId]);
 
@@ -97,10 +153,9 @@ export default function WarRoom() {
     setUserVote(value);
     setState((prev) => ({
       ...prev,
-      currentVote: prev.currentVote ? {
-        ...prev.currentVote,
-        votes: { ...prev.currentVote.votes, user: value },
-      } : null,
+      currentVote: prev.currentVote
+        ? { ...prev.currentVote, votes: { ...prev.currentVote.votes, user: value } }
+        : null,
     }));
   }, []);
 
@@ -122,10 +177,52 @@ export default function WarRoom() {
       setState((prev) => ({
         ...prev,
         documents: prev.documents.map((d) =>
-          d.id === docId ? { ...d, status: "analyzed", summary: `Key findings from ${file.name} extracted for board review.` } : d
+          d.id === docId ? { ...d, status: "analyzed", summary: `Key findings from ${file.name} extracted.` } : d
         ),
       }));
     }, 3000);
+  }, []);
+
+  const handleUserMessage = useCallback((text: string) => {
+    setState((prev) => ({
+      ...prev,
+      transcript: [
+        ...prev.transcript,
+        {
+          id: `user-${Date.now()}`,
+          agentId: "user",
+          agentName: "You",
+          role: "chairperson" as const,
+          text,
+          timestamp: Date.now(),
+        },
+      ],
+    }));
+  }, []);
+
+  const handleToggleMic = useCallback(() => {
+    setState((prev) => {
+      const newMicState = !prev.isMicActive;
+      // When mic turns on, add a visual indicator in transcript
+      if (newMicState && prev.sessionStatus === "active") {
+        return {
+          ...prev,
+          isMicActive: true,
+          transcript: [
+            ...prev.transcript,
+            {
+              id: `mic-${Date.now()}`,
+              agentId: "user",
+              agentName: "You",
+              role: "chairperson" as const,
+              text: "🎙️ Microphone activated — listening…",
+              timestamp: Date.now(),
+            },
+          ],
+        };
+      }
+      return { ...prev, isMicActive: newMicState };
+    });
   }, []);
 
   return (
@@ -143,12 +240,13 @@ export default function WarRoom() {
             <p className="text-[11px] text-muted-foreground">Virtual War Room</p>
           </div>
         </div>
-        <div className="flex items-center gap-4">
-          <div className="hidden lg:block max-w-md">
-            <p className="text-[12px] text-muted-foreground truncate">
-              NovaTech Acquisition Review · $2.4B
+        <div className="flex items-center gap-3">
+          {sessionAgenda && (
+            <p className="hidden lg:block text-[12px] text-muted-foreground truncate max-w-xs">
+              {sessionAgenda}
             </p>
-          </div>
+          )}
+          <ThemeToggle />
         </div>
       </div>
 
@@ -166,13 +264,14 @@ export default function WarRoom() {
             documents={state.documents}
             onUpload={handleUpload}
             sessionStatus={state.sessionStatus}
+            bgImage={bgImage}
           />
           <VoiceControls
             isMicActive={state.isMicActive}
             isSpeakerActive={state.isSpeakerActive}
             isHandRaised={isHandRaised}
             sessionActive={state.sessionStatus === "active"}
-            onToggleMic={() => setState((p) => ({ ...p, isMicActive: !p.isMicActive }))}
+            onToggleMic={handleToggleMic}
             onToggleSpeaker={() => setState((p) => ({ ...p, isSpeakerActive: !p.isSpeakerActive }))}
             onRaiseHand={() => setIsHandRaised((h) => !h)}
             onStartSession={handleStartSession}
@@ -186,9 +285,16 @@ export default function WarRoom() {
             vote={state.currentVote}
             userVote={userVote}
             onCastVote={handleCastVote}
+            onSendMessage={handleUserMessage}
           />
         </div>
       </div>
+
+      <SessionSetupDialog
+        open={showSetup}
+        onStart={handleSessionConfig}
+        onCancel={() => setShowSetup(false)}
+      />
     </div>
   );
 }

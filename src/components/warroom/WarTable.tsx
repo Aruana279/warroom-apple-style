@@ -38,9 +38,10 @@ interface WarTableProps {
   documents: UploadedDocument[];
   onUpload: (file: File) => void;
   sessionStatus: string;
+  bgImage?: string;
 }
 
-export function WarTable({ agents, documents, onUpload, sessionStatus }: WarTableProps) {
+export function WarTable({ agents, documents, onUpload, sessionStatus, bgImage }: WarTableProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const agentPositions = agents.map((_, i) => {
@@ -57,16 +58,21 @@ export function WarTable({ agents, documents, onUpload, sessionStatus }: WarTabl
     <div className="flex-1 flex flex-col min-h-0 relative">
       {/* War table area */}
       <div className="flex-1 relative overflow-hidden bg-background">
+        {/* Optional background image from backend */}
+        {bgImage && (
+          <div
+            className="absolute inset-0 bg-cover bg-center opacity-10 pointer-events-none"
+            style={{ backgroundImage: `url(${bgImage})` }}
+          />
+        )}
+
         {/* Subtle concentric rings */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           {[1, 2, 3].map((i) => (
             <div
               key={i}
               className="absolute rounded-full border border-border/40"
-              style={{
-                width: `${i * 22}%`,
-                height: `${i * 22}%`,
-              }}
+              style={{ width: `${i * 22}%`, height: `${i * 22}%` }}
             />
           ))}
         </div>
@@ -77,6 +83,13 @@ export function WarTable({ agents, documents, onUpload, sessionStatus }: WarTabl
             <span className="text-xl font-semibold text-muted-foreground/40">Q</span>
           </div>
         </div>
+
+        {/* Empty state */}
+        {agents.length === 0 && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <p className="text-sm text-muted-foreground">Start a session to see agents here</p>
+          </div>
+        )}
 
         {/* Agents */}
         {agents.map((agent, i) => {
@@ -90,15 +103,26 @@ export function WarTable({ agents, documents, onUpload, sessionStatus }: WarTabl
               style={{ left: agentPositions[i].left, top: agentPositions[i].top }}
             >
               <div className="relative">
-                <div
-                  className={`w-14 h-14 rounded-2xl flex items-center justify-center text-sm font-semibold transition-all duration-300 shadow-sm ${
-                    isSpeaking
-                      ? `${color} text-primary-foreground shadow-lg scale-105`
-                      : "bg-card text-foreground border border-border"
-                  }`}
-                >
-                  {roleInitials[agent.role] || "??"}
-                </div>
+                {/* Avatar or initials */}
+                {agent.avatar ? (
+                  <img
+                    src={agent.avatar}
+                    alt={agent.name}
+                    className={`w-14 h-14 rounded-2xl object-cover transition-all duration-300 shadow-sm ${
+                      isSpeaking ? "shadow-lg scale-105 ring-2 ring-primary/40" : "border border-border"
+                    }`}
+                  />
+                ) : (
+                  <div
+                    className={`w-14 h-14 rounded-2xl flex items-center justify-center text-sm font-semibold transition-all duration-300 shadow-sm ${
+                      isSpeaking
+                        ? `${color} text-primary-foreground shadow-lg scale-105`
+                        : "bg-card text-foreground border border-border"
+                    }`}
+                  >
+                    {roleInitials[agent.role] || "??"}
+                  </div>
+                )}
                 {isSpeaking && (
                   <div className="absolute inset-0 rounded-2xl border-2 border-primary/30 animate-pulse-ring" />
                 )}
@@ -135,12 +159,8 @@ export function WarTable({ agents, documents, onUpload, sessionStatus }: WarTabl
       <div className="border-t border-border bg-card">
         <div className="flex items-center gap-2 px-5 py-2">
           <FileText className="w-3.5 h-3.5 text-muted-foreground" />
-          <span className="text-xs text-muted-foreground font-medium">
-            Documents
-          </span>
-          <span className="text-xs text-muted-foreground ml-auto">
-            {documents.length}
-          </span>
+          <span className="text-xs text-muted-foreground font-medium">Documents</span>
+          <span className="text-xs text-muted-foreground ml-auto">{documents.length}</span>
         </div>
 
         <div className="flex items-center gap-2 px-5 pb-3 overflow-x-auto">
@@ -180,9 +200,7 @@ export function WarTable({ agents, documents, onUpload, sessionStatus }: WarTabl
           ))}
 
           {documents.length === 0 && (
-            <p className="text-xs text-muted-foreground py-2">
-              No documents yet
-            </p>
+            <p className="text-xs text-muted-foreground py-2">No documents yet</p>
           )}
         </div>
       </div>
