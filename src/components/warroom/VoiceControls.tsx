@@ -1,4 +1,4 @@
-import { Mic, MicOff, Volume2, VolumeX, Hand, Radio } from "lucide-react";
+import { Mic, MicOff, Volume2, VolumeX, Hand, Play, Square } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface VoiceControlsProps {
@@ -25,55 +25,52 @@ export function VoiceControls({
   onEndSession,
 }: VoiceControlsProps) {
   return (
-    <div className="flex items-center gap-2 p-3 border-t border-border bg-card/50">
-      {/* Session toggle */}
+    <div className="flex items-center gap-3 px-5 py-3 border-t border-border bg-card">
       {!sessionActive ? (
-        <Button variant="tactical" size="sm" onClick={onStartSession} className="gap-1.5">
-          <Radio className="w-3.5 h-3.5" />
-          <span className="text-xs font-mono">START SESSION</span>
+        <Button variant="tactical" size="sm" onClick={onStartSession} className="gap-2">
+          <Play className="w-3.5 h-3.5" />
+          Start Session
         </Button>
       ) : (
-        <Button variant="danger" size="sm" onClick={onEndSession} className="gap-1.5">
-          <Radio className="w-3.5 h-3.5" />
-          <span className="text-xs font-mono">END</span>
+        <Button variant="danger" size="sm" onClick={onEndSession} className="gap-2">
+          <Square className="w-3 h-3" />
+          End
         </Button>
       )}
 
       <div className="flex-1" />
 
-      {/* Raise hand */}
       <Button
-        variant={isHandRaised ? "tactical" : "ghost"}
+        variant={isHandRaised ? "default" : "ghost"}
         size="icon"
         onClick={onRaiseHand}
         disabled={!sessionActive}
-        title="Raise Hand"
+        className="rounded-full"
       >
         <Hand className="w-4 h-4" />
       </Button>
 
-      {/* Speaker */}
       <Button
-        variant={isSpeakerActive ? "ghost" : "danger"}
+        variant="ghost"
         size="icon"
         onClick={onToggleSpeaker}
         disabled={!sessionActive}
-        title={isSpeakerActive ? "Mute Speaker" : "Unmute Speaker"}
+        className="rounded-full"
       >
-        {isSpeakerActive ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+        {isSpeakerActive ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4 text-destructive" />}
       </Button>
 
-      {/* Mic - big button */}
-      <Button
-        variant={isMicActive ? "tactical" : "ghost"}
-        size="icon"
+      <button
         onClick={onToggleMic}
         disabled={!sessionActive}
-        className={`w-12 h-12 rounded-full ${isMicActive ? "glow-primary" : ""}`}
-        title={isMicActive ? "Mute Mic" : "Unmute Mic"}
+        className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-200 disabled:opacity-40 ${
+          isMicActive
+            ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25 scale-105"
+            : "bg-secondary text-muted-foreground hover:bg-accent"
+        }`}
       >
         {isMicActive ? <Mic className="w-5 h-5" /> : <MicOff className="w-5 h-5" />}
-      </Button>
+      </button>
     </div>
   );
 }
