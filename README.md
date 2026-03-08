@@ -1,10 +1,10 @@
 # Welcome to your Lovable project
 
 ## Team members
-Anzhelika Siui
-Bhavesh Gupta
-Pranjal Mishra
-Aru Koshkarova
+Anzhelika Siui,
+Bhavesh Gupta,
+Pranjal Mishra,
+Aruzhan Koshkarova
 
 ## Project info
 
