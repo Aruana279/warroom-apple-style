@@ -83,9 +83,7 @@ export function WarTable({ agents, documents, onUpload, sessionStatus }: WarTabl
       // Radar sweep
       if (sessionStatus === "active") {
         angle += 0.01;
-        const grad = ctx.createConicalGradient
-          ? undefined
-          : undefined; // fallback for sweep
+      // Radar sweep effect
         
         ctx.beginPath();
         ctx.moveTo(cx, cy);
