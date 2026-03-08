@@ -2,56 +2,105 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
 @layer base {
   :root {
-    --background: 220 20% 7%;
-    --foreground: 160 20% 90%;
+    --background: 0 0% 98%;
+    --foreground: 0 0% 9%;
 
-    --card: 220 18% 10%;
-    --card-foreground: 160 20% 90%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 9%;
 
-    --popover: 220 18% 12%;
-    --popover-foreground: 160 20% 90%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 9%;
 
-    --primary: 160 80% 45%;
-    --primary-foreground: 220 20% 7%;
+    --primary: 220 90% 56%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 220 15% 16%;
-    --secondary-foreground: 160 20% 85%;
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 0 0% 9%;
 
-    --muted: 220 15% 14%;
-    --muted-foreground: 220 10% 50%;
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 9% 46%;
 
-    --accent: 38 90% 55%;
-    --accent-foreground: 220 20% 7%;
+    --accent: 220 14% 93%;
+    --accent-foreground: 0 0% 9%;
 
-    --destructive: 0 75% 55%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 220 15% 18%;
-    --input: 220 15% 18%;
-    --ring: 160 80% 45%;
+    --success: 142 71% 45%;
+    --success-foreground: 0 0% 100%;
 
-    --radius: 0.5rem;
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
 
-    /* War Room custom tokens */
-    --glow-primary: 160 80% 45%;
-    --glow-accent: 38 90% 55%;
-    --glow-danger: 0 75% 55%;
-    --glow-info: 200 80% 55%;
-    --surface-elevated: 220 18% 13%;
-    --surface-glass: 220 20% 10%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 220 90% 56%;
 
-    --sidebar-background: 220 20% 7%;
-    --sidebar-foreground: 160 20% 90%;
-    --sidebar-primary: 160 80% 45%;
-    --sidebar-primary-foreground: 220 20% 7%;
-    --sidebar-accent: 220 15% 16%;
-    --sidebar-accent-foreground: 160 20% 90%;
-    --sidebar-border: 220 15% 18%;
-    --sidebar-ring: 160 80% 45%;
+    --radius: 0.75rem;
+
+    --surface-elevated: 0 0% 100%;
+    --surface-subtle: 220 14% 96%;
+
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 0 0% 9%;
+    --sidebar-primary: 220 90% 56%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 14% 96%;
+    --sidebar-accent-foreground: 0 0% 9%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 220 90% 56%;
+  }
+
+  .dark {
+    --background: 220 16% 8%;
+    --foreground: 220 9% 94%;
+
+    --card: 220 16% 11%;
+    --card-foreground: 220 9% 94%;
+
+    --popover: 220 16% 11%;
+    --popover-foreground: 220 9% 94%;
+
+    --primary: 220 90% 60%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 220 14% 16%;
+    --secondary-foreground: 220 9% 94%;
+
+    --muted: 220 14% 16%;
+    --muted-foreground: 220 9% 50%;
+
+    --accent: 220 14% 18%;
+    --accent-foreground: 220 9% 94%;
+
+    --destructive: 0 72% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 142 71% 45%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+
+    --border: 220 14% 18%;
+    --input: 220 14% 18%;
+    --ring: 220 90% 60%;
+
+    --surface-elevated: 220 16% 14%;
+    --surface-subtle: 220 14% 12%;
+
+    --sidebar-background: 220 16% 8%;
+    --sidebar-foreground: 220 9% 94%;
+    --sidebar-primary: 220 90% 60%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 14% 16%;
+    --sidebar-accent-foreground: 220 9% 94%;
+    --sidebar-border: 220 14% 18%;
+    --sidebar-ring: 220 90% 60%;
   }
 }
 
@@ -61,7 +110,8 @@
   }
 
   body {
-    @apply bg-background text-foreground font-body;
+    @apply bg-background text-foreground;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -69,76 +119,55 @@
 
 @layer utilities {
   .font-display {
-    font-family: 'Space Grotesk', sans-serif;
-  }
-  .font-mono-code {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   }
   .font-body {
-    font-family: 'Space Grotesk', sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+  .font-mono-code {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
   }
 
-  .glow-primary {
-    box-shadow: 0 0 20px hsl(var(--glow-primary) / 0.3), 
-                0 0 60px hsl(var(--glow-primary) / 0.1);
+  .surface-elevated {
+    background: hsl(var(--surface-elevated));
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.04), 0 1px 2px -1px rgb(0 0 0 / 0.04);
   }
-  .glow-accent {
-    box-shadow: 0 0 20px hsl(var(--glow-accent) / 0.3), 
-                0 0 60px hsl(var(--glow-accent) / 0.1);
-  }
-  .glow-danger {
-    box-shadow: 0 0 20px hsl(var(--glow-danger) / 0.3), 
-                0 0 60px hsl(var(--glow-danger) / 0.1);
+
+  .surface-card {
+    background: hsl(var(--card));
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.06);
+    border: 1px solid hsl(var(--border));
+    border-radius: var(--radius);
   }
 
   .glass-panel {
-    background: hsl(var(--surface-glass) / 0.8);
-    backdrop-filter: blur(12px);
-    border: 1px solid hsl(var(--border) / 0.6);
-  }
-
-  .scan-line {
-    background: repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 2px,
-      hsl(var(--glow-primary) / 0.03) 2px,
-      hsl(var(--glow-primary) / 0.03) 4px
-    );
-  }
-
-  .grid-bg {
-    background-image: 
-      linear-gradient(hsl(var(--border) / 0.3) 1px, transparent 1px),
-      linear-gradient(90deg, hsl(var(--border) / 0.3) 1px, transparent 1px);
-    background-size: 40px 40px;
-  }
-
-  .text-glow-primary {
-    text-shadow: 0 0 10px hsl(var(--glow-primary) / 0.5);
-  }
-  .text-glow-accent {
-    text-shadow: 0 0 10px hsl(var(--glow-accent) / 0.5);
+    background: hsl(var(--card) / 0.8);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid hsl(var(--border) / 0.5);
   }
 }
 
-/* Pulse animation for speaking indicators */
+/* Subtle animations */
 @keyframes pulse-ring {
-  0% { transform: scale(1); opacity: 0.6; }
-  100% { transform: scale(1.5); opacity: 0; }
+  0% { transform: scale(1); opacity: 0.4; }
+  100% { transform: scale(1.4); opacity: 0; }
 }
 
-@keyframes radar-sweep {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes data-stream {
-  0% { transform: translateY(0); }
-  100% { transform: translateY(-100%); }
+@keyframes gentle-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
 }
 
-@keyframes typing-dot {
-  0%, 60%, 100% { opacity: 0.3; transform: translateY(0); }
-  30% { opacity: 1; transform: translateY(-4px); }
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out;
+}
+
+.animate-gentle-pulse {
+  animation: gentle-pulse 2s ease-in-out infinite;
 }

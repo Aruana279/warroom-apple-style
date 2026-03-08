@@ -5,19 +5,19 @@ import { Button } from "@/components/ui/button";
 import { ThumbsUp, ThumbsDown, MinusCircle } from "lucide-react";
 
 const roleColors: Record<string, string> = {
-  chairperson: "bg-accent/10 border-accent/30",
-  analyst: "bg-glow-info/10 border-glow-info/30",
-  advocate: "bg-primary/10 border-primary/30",
-  critic: "bg-destructive/10 border-destructive/30",
-  secretary: "bg-muted/50 border-muted-foreground/30",
+  chairperson: "bg-primary/8",
+  analyst: "bg-success/8",
+  advocate: "bg-warning/8",
+  critic: "bg-destructive/8",
+  secretary: "bg-secondary",
 };
 
-const roleTextColors: Record<string, string> = {
-  chairperson: "text-accent",
-  analyst: "text-glow-info",
-  advocate: "text-primary",
-  critic: "text-destructive",
-  secretary: "text-muted-foreground",
+const roleDotColors: Record<string, string> = {
+  chairperson: "bg-primary",
+  analyst: "bg-success",
+  advocate: "bg-warning",
+  critic: "bg-destructive",
+  secretary: "bg-muted-foreground",
 };
 
 interface ChatPanelProps {
@@ -46,102 +46,95 @@ export function ChatPanel({ entries, vote, userVote, onCastVote, onSendMessage }
   };
 
   return (
-    <div className="flex flex-col h-full bg-card/30">
+    <div className="flex flex-col h-full bg-card/50">
       {/* Header */}
-      <div className="px-4 py-2.5 border-b border-border flex items-center gap-2">
-        <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-        <h3 className="text-xs font-semibold uppercase tracking-widest font-mono text-muted-foreground">
-          Session Feed
+      <div className="px-4 py-3 border-b border-border flex items-center gap-2">
+        <h3 className="text-sm font-medium text-foreground">
+          Transcript
         </h3>
-        <span className="ml-auto text-[10px] font-mono text-muted-foreground">
-          {entries.length} messages
+        <span className="ml-auto text-xs text-muted-foreground">
+          {entries.length}
         </span>
       </div>
 
       {/* Messages */}
-      <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-3">
+      <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4">
         {entries.length === 0 && (
           <div className="flex flex-col items-center justify-center h-full gap-3">
-            <div className="w-12 h-12 rounded-full border border-border bg-secondary/30 flex items-center justify-center">
-              <Bot className="w-6 h-6 text-muted-foreground" />
+            <div className="w-12 h-12 rounded-2xl bg-secondary flex items-center justify-center">
+              <Bot className="w-5 h-5 text-muted-foreground" />
             </div>
-            <p className="text-sm text-muted-foreground font-mono text-center">
-              Awaiting session start...
+            <p className="text-sm text-muted-foreground text-center">
+              Waiting for session…
             </p>
           </div>
         )}
 
         {entries.map((entry) => {
-          const bubbleColor = roleColors[entry.role] || "bg-secondary/50 border-border";
-          const nameColor = roleTextColors[entry.role] || "text-foreground";
+          const bubble = roleColors[entry.role] || "bg-secondary";
+          const dot = roleDotColors[entry.role] || "bg-muted-foreground";
 
           return (
             <div key={entry.id} className="animate-fade-in">
-              <div className="flex items-center gap-2 mb-1">
-                <div className="w-5 h-5 rounded-full bg-secondary flex items-center justify-center">
-                  <Bot className="w-3 h-3 text-muted-foreground" />
-                </div>
-                <span className={`text-xs font-semibold ${nameColor}`}>{entry.agentName}</span>
-                <span className="text-[10px] font-mono text-muted-foreground">
+              <div className="flex items-center gap-2 mb-1.5">
+                <span className={`w-2 h-2 rounded-full ${dot}`} />
+                <span className="text-xs font-medium text-foreground">{entry.agentName}</span>
+                <span className="text-[11px] text-muted-foreground">
                   {new Date(entry.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                 </span>
               </div>
-              <div className={`ml-7 rounded-lg border p-3 ${bubbleColor}`}>
-                <p className="text-sm text-foreground/90 leading-relaxed">{entry.text}</p>
+              <div className={`ml-4 rounded-xl p-3 ${bubble}`}>
+                <p className="text-[13px] text-foreground/90 leading-relaxed">{entry.text}</p>
               </div>
             </div>
           );
         })}
 
-        {/* Inline vote card */}
+        {/* Vote card */}
         {vote && vote.status === "open" && (
-          <div className="animate-fade-in ml-7">
-            <div className="rounded-lg border border-accent/40 bg-accent/5 p-4 space-y-3">
-              <div className="flex items-center gap-2">
-                <div className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
-                <span className="text-xs font-semibold text-accent font-mono uppercase">Motion to Vote</span>
-              </div>
+          <div className="animate-fade-in ml-4">
+            <div className="rounded-xl border border-border bg-card p-4 space-y-3 shadow-sm">
+              <p className="text-xs font-medium text-muted-foreground">Vote Required</p>
               <p className="text-sm font-medium text-foreground">{vote.motion}</p>
               <div className="flex gap-2">
                 <Button
                   variant="vote"
                   size="sm"
-                  className={`flex-1 gap-1.5 ${userVote === "yes" ? "border-primary bg-primary/10" : ""}`}
+                  className={`flex-1 gap-1.5 rounded-lg ${userVote === "yes" ? "border-success bg-success/10 text-success" : ""}`}
                   onClick={() => onCastVote("yes")}
                 >
-                  <ThumbsUp className="w-3.5 h-3.5 text-primary" />
-                  <span className="text-[10px] font-mono">YES</span>
+                  <ThumbsUp className="w-3.5 h-3.5" />
+                  Yes
                 </Button>
                 <Button
                   variant="vote"
                   size="sm"
-                  className={`flex-1 gap-1.5 ${userVote === "no" ? "border-destructive bg-destructive/10" : ""}`}
+                  className={`flex-1 gap-1.5 rounded-lg ${userVote === "no" ? "border-destructive bg-destructive/10 text-destructive" : ""}`}
                   onClick={() => onCastVote("no")}
                 >
-                  <ThumbsDown className="w-3.5 h-3.5 text-destructive" />
-                  <span className="text-[10px] font-mono">NO</span>
+                  <ThumbsDown className="w-3.5 h-3.5" />
+                  No
                 </Button>
                 <Button
                   variant="vote"
                   size="sm"
-                  className={`flex-1 gap-1.5 ${userVote === "abstain" ? "border-muted-foreground bg-muted/50" : ""}`}
+                  className={`flex-1 gap-1.5 rounded-lg ${userVote === "abstain" ? "border-muted-foreground bg-muted text-muted-foreground" : ""}`}
                   onClick={() => onCastVote("abstain")}
                 >
-                  <MinusCircle className="w-3.5 h-3.5 text-muted-foreground" />
-                  <span className="text-[10px] font-mono">ABSTAIN</span>
+                  <MinusCircle className="w-3.5 h-3.5" />
+                  Pass
                 </Button>
               </div>
-              {/* Vote tally */}
               {Object.keys(vote.votes).length > 0 && (
-                <div className="flex gap-0.5 h-1.5 rounded-full overflow-hidden bg-secondary">
+                <div className="flex gap-0.5 h-1 rounded-full overflow-hidden bg-secondary">
                   {Object.values(vote.votes).filter(v => v === "yes").length > 0 && (
-                    <div className="bg-primary h-full" style={{ flex: Object.values(vote.votes).filter(v => v === "yes").length }} />
+                    <div className="bg-success h-full rounded-full" style={{ flex: Object.values(vote.votes).filter(v => v === "yes").length }} />
                   )}
                   {Object.values(vote.votes).filter(v => v === "no").length > 0 && (
-                    <div className="bg-destructive h-full" style={{ flex: Object.values(vote.votes).filter(v => v === "no").length }} />
+                    <div className="bg-destructive h-full rounded-full" style={{ flex: Object.values(vote.votes).filter(v => v === "no").length }} />
                   )}
                   {Object.values(vote.votes).filter(v => v === "abstain").length > 0 && (
-                    <div className="bg-muted-foreground/50 h-full" style={{ flex: Object.values(vote.votes).filter(v => v === "abstain").length }} />
+                    <div className="bg-muted-foreground/40 h-full rounded-full" style={{ flex: Object.values(vote.votes).filter(v => v === "abstain").length }} />
                   )}
                 </div>
               )}
@@ -150,23 +143,22 @@ export function ChatPanel({ entries, vote, userVote, onCastVote, onSendMessage }
         )}
       </div>
 
-      {/* Input bar */}
+      {/* Input */}
       <div className="p-3 border-t border-border">
-        <div className="flex items-center gap-2 rounded-lg border border-border bg-secondary/30 px-3 py-2">
-          <User className="w-4 h-4 text-muted-foreground shrink-0" />
+        <div className="flex items-center gap-2 rounded-xl bg-secondary px-3 py-2.5">
           <input
             type="text"
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSend()}
-            placeholder="Interject or ask a question..."
+            placeholder="Add a comment…"
             className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
           />
           <button
             onClick={handleSend}
-            className="w-8 h-8 rounded-md flex items-center justify-center hover:bg-primary/10 transition-colors"
+            className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-accent transition-colors"
           >
-            <Send className="w-4 h-4 text-muted-foreground hover:text-primary" />
+            <Send className="w-4 h-4 text-muted-foreground" />
           </button>
         </div>
       </div>

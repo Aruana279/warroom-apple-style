@@ -2,7 +2,6 @@ import { useState, useCallback } from "react";
 import type { WarRoomState, VoteValue, TranscriptEntry, Agent } from "@/types/warroom";
 import { StatusBar } from "@/components/warroom/StatusBar";
 import { VoiceControls } from "@/components/warroom/VoiceControls";
-import { MissionCard } from "@/components/warroom/MissionCard";
 import { WarTable } from "@/components/warroom/WarTable";
 import { ChatPanel } from "@/components/warroom/ChatPanel";
 import { LeftSidebar } from "@/components/warroom/LeftSidebar";
@@ -131,28 +130,25 @@ export default function WarRoom() {
 
   return (
     <div className="h-screen flex flex-col bg-background overflow-hidden">
-      {/* Left sidebar drawer */}
       <LeftSidebar currentAgents={state.agents} />
 
       {/* Title bar */}
-      <div className="flex items-center justify-between px-5 py-3 border-b border-border bg-card/80">
+      <div className="flex items-center justify-between px-5 py-3 border-b border-border bg-card">
         <div className="flex items-center gap-3 ml-12">
-          <div className="w-8 h-8 rounded-md bg-primary/10 border border-primary/30 flex items-center justify-center">
-            <span className="text-primary font-bold text-sm font-mono">Q</span>
+          <div className="w-8 h-8 rounded-xl bg-primary flex items-center justify-center shadow-sm">
+            <span className="text-primary-foreground font-semibold text-sm">Q</span>
           </div>
           <div>
-            <h1 className="text-sm font-bold font-display text-foreground tracking-tight">QUORUM</h1>
-            <p className="text-[10px] font-mono text-muted-foreground tracking-widest">VIRTUAL WAR ROOM</p>
+            <h1 className="text-sm font-semibold text-foreground tracking-tight">Quorum</h1>
+            <p className="text-[11px] text-muted-foreground">Virtual War Room</p>
           </div>
         </div>
         <div className="flex items-center gap-4">
-          {/* Mission inline */}
           <div className="hidden lg:block max-w-md">
-            <p className="text-[11px] text-muted-foreground font-mono truncate">
-              Mission: NovaTech Acquisition Review ($2.4B)
+            <p className="text-[12px] text-muted-foreground truncate">
+              NovaTech Acquisition Review · $2.4B
             </p>
           </div>
-          <div className="text-[10px] font-mono text-muted-foreground">v0.1.0</div>
         </div>
       </div>
 
@@ -162,9 +158,8 @@ export default function WarRoom() {
         sessionTime={formatTime(sessionSeconds)}
       />
 
-      {/* Main 2-panel layout: War Table (center) + Chat (right) */}
+      {/* Main layout */}
       <div className="flex-1 flex overflow-hidden">
-        {/* Center: War Table with agents + documents */}
         <div className="flex-1 flex flex-col min-w-0">
           <WarTable
             agents={state.agents}
@@ -185,7 +180,6 @@ export default function WarRoom() {
           />
         </div>
 
-        {/* Right: Chat / Transcript */}
         <div className="w-80 border-l border-border shrink-0">
           <ChatPanel
             entries={state.transcript}
