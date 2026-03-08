@@ -1,12 +1,11 @@
 import { useState, useCallback } from "react";
 import type { WarRoomState, VoteValue, TranscriptEntry, Agent } from "@/types/warroom";
 import { StatusBar } from "@/components/warroom/StatusBar";
-import { AgentCard } from "@/components/warroom/AgentCard";
-import { TranscriptPanel } from "@/components/warroom/TranscriptPanel";
 import { VoiceControls } from "@/components/warroom/VoiceControls";
-import { DocumentPanel } from "@/components/warroom/DocumentPanel";
-import { VotePanel } from "@/components/warroom/VotePanel";
 import { MissionCard } from "@/components/warroom/MissionCard";
+import { WarTable } from "@/components/warroom/WarTable";
+import { ChatPanel } from "@/components/warroom/ChatPanel";
+import { LeftSidebar } from "@/components/warroom/LeftSidebar";
 
 const DEMO_AGENTS: Agent[] = [
   { id: "chair-1", name: "Director", role: "chairperson", avatar: "", speakingState: "idle", isHandRaised: false },
@@ -55,7 +54,6 @@ export default function WarRoom() {
     const id = setInterval(() => setSessionSeconds((s) => s + 1), 1000);
     setIntervalId(id);
 
-    // Simulate agent speaking rotation
     setTimeout(() => {
       setState((prev) => ({
         ...prev,
@@ -66,7 +64,6 @@ export default function WarRoom() {
       }));
     }, 4000);
 
-    // Simulate a vote after delay
     setTimeout(() => {
       setState((prev) => ({
         ...prev,
@@ -114,7 +111,6 @@ export default function WarRoom() {
       ...prev,
       documents: [...prev.documents, { id: docId, name: file.name, status: "uploading" }],
     }));
-    // Simulate processing
     setTimeout(() => {
       setState((prev) => ({
         ...prev,
@@ -127,17 +123,20 @@ export default function WarRoom() {
       setState((prev) => ({
         ...prev,
         documents: prev.documents.map((d) =>
-          d.id === docId ? { ...d, status: "analyzed", summary: `Analysis of ${file.name}: Key findings extracted and summarized for board review.` } : d
+          d.id === docId ? { ...d, status: "analyzed", summary: `Key findings from ${file.name} extracted for board review.` } : d
         ),
       }));
     }, 3000);
   }, []);
 
   return (
-    <div className="h-screen flex flex-col bg-background grid-bg overflow-hidden">
+    <div className="h-screen flex flex-col bg-background overflow-hidden">
+      {/* Left sidebar drawer */}
+      <LeftSidebar currentAgents={state.agents} />
+
       {/* Title bar */}
       <div className="flex items-center justify-between px-5 py-3 border-b border-border bg-card/80">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 ml-12">
           <div className="w-8 h-8 rounded-md bg-primary/10 border border-primary/30 flex items-center justify-center">
             <span className="text-primary font-bold text-sm font-mono">Q</span>
           </div>
@@ -146,8 +145,14 @@ export default function WarRoom() {
             <p className="text-[10px] font-mono text-muted-foreground tracking-widest">VIRTUAL WAR ROOM</p>
           </div>
         </div>
-        <div className="text-[10px] font-mono text-muted-foreground">
-          v0.1.0 • HACKATHON BUILD
+        <div className="flex items-center gap-4">
+          {/* Mission inline */}
+          <div className="hidden lg:block max-w-md">
+            <p className="text-[11px] text-muted-foreground font-mono truncate">
+              Mission: NovaTech Acquisition Review ($2.4B)
+            </p>
+          </div>
+          <div className="text-[10px] font-mono text-muted-foreground">v0.1.0</div>
         </div>
       </div>
 
@@ -157,39 +162,16 @@ export default function WarRoom() {
         sessionTime={formatTime(sessionSeconds)}
       />
 
-      {/* Main content */}
+      {/* Main 2-panel layout: War Table (center) + Chat (right) */}
       <div className="flex-1 flex overflow-hidden">
-        {/* Left sidebar - Agents + Mission + Documents */}
-        <div className="w-72 border-r border-border flex flex-col bg-card/30 shrink-0">
-          {/* Mission */}
-          <div className="p-3">
-            <MissionCard
-              title="NovaTech Acquisition Review"
-              description="Evaluate the strategic acquisition of NovaTech ($2.4B). Assess IP portfolio, integration risks, and market impact."
-            />
-          </div>
-
-          {/* Agents */}
-          <div className="px-3 pb-2">
-            <h3 className="text-[10px] font-semibold uppercase tracking-widest font-mono text-muted-foreground mb-2 px-1">
-              Board Members
-            </h3>
-            <div className="grid grid-cols-2 gap-2">
-              {state.agents.map((agent) => (
-                <AgentCard key={agent.id} agent={agent} />
-              ))}
-            </div>
-          </div>
-
-          {/* Documents */}
-          <div className="flex-1 border-t border-border min-h-0">
-            <DocumentPanel documents={state.documents} onUpload={handleUpload} />
-          </div>
-        </div>
-
-        {/* Center - Transcript */}
+        {/* Center: War Table with agents + documents */}
         <div className="flex-1 flex flex-col min-w-0">
-          <TranscriptPanel entries={state.transcript} />
+          <WarTable
+            agents={state.agents}
+            documents={state.documents}
+            onUpload={handleUpload}
+            sessionStatus={state.sessionStatus}
+          />
           <VoiceControls
             isMicActive={state.isMicActive}
             isSpeakerActive={state.isSpeakerActive}
@@ -203,9 +185,14 @@ export default function WarRoom() {
           />
         </div>
 
-        {/* Right sidebar - Vote */}
-        <div className="w-64 border-l border-border bg-card/30 shrink-0">
-          <VotePanel vote={state.currentVote} onCastVote={handleCastVote} userVote={userVote} />
+        {/* Right: Chat / Transcript */}
+        <div className="w-80 border-l border-border shrink-0">
+          <ChatPanel
+            entries={state.transcript}
+            vote={state.currentVote}
+            userVote={userVote}
+            onCastVote={handleCastVote}
+          />
         </div>
       </div>
     </div>
