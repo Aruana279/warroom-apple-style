@@ -49,12 +49,8 @@ export function ChatPanel({ entries, vote, userVote, onCastVote, onSendMessage }
     <div className="flex flex-col h-full bg-card/50">
       {/* Header */}
       <div className="px-4 py-3 border-b border-border flex items-center gap-2">
-        <h3 className="text-sm font-medium text-foreground">
-          Transcript
-        </h3>
-        <span className="ml-auto text-xs text-muted-foreground">
-          {entries.length}
-        </span>
+        <h3 className="text-sm font-medium text-foreground">Transcript</h3>
+        <span className="ml-auto text-xs text-muted-foreground">{entries.length}</span>
       </div>
 
       {/* Messages */}
@@ -65,20 +61,27 @@ export function ChatPanel({ entries, vote, userVote, onCastVote, onSendMessage }
               <Bot className="w-5 h-5 text-muted-foreground" />
             </div>
             <p className="text-sm text-muted-foreground text-center">
-              Waiting for session…
+              Start a session to begin…
             </p>
           </div>
         )}
 
         {entries.map((entry) => {
-          const bubble = roleColors[entry.role] || "bg-secondary";
-          const dot = roleDotColors[entry.role] || "bg-muted-foreground";
+          const isUser = entry.agentId === "user";
+          const bubble = isUser ? "bg-primary/10" : (roleColors[entry.role] || "bg-secondary");
+          const dot = isUser ? "bg-primary" : (roleDotColors[entry.role] || "bg-muted-foreground");
 
           return (
             <div key={entry.id} className="animate-fade-in">
               <div className="flex items-center gap-2 mb-1.5">
-                <span className={`w-2 h-2 rounded-full ${dot}`} />
-                <span className="text-xs font-medium text-foreground">{entry.agentName}</span>
+                {isUser ? (
+                  <User className="w-3 h-3 text-primary" />
+                ) : (
+                  <span className={`w-2 h-2 rounded-full ${dot}`} />
+                )}
+                <span className={`text-xs font-medium ${isUser ? "text-primary" : "text-foreground"}`}>
+                  {entry.agentName}
+                </span>
                 <span className="text-[11px] text-muted-foreground">
                   {new Date(entry.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                 </span>
@@ -151,7 +154,7 @@ export function ChatPanel({ entries, vote, userVote, onCastVote, onSendMessage }
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSend()}
-            placeholder="Add a comment…"
+            placeholder="Type a message…"
             className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none"
           />
           <button
